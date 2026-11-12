@@ -1,0 +1,201 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Staff Admin Dashboard | MedVision AI{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4 px-md-5">
+    <!-- Admin Top Banner -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4 p-4 rounded-3 text-white shadow-sm" style="background: linear-gradient(135deg, #061324 0%, #0a2540 100%);">
+        <div>
+            <span class="badge bg-danger px-3 py-1 mb-2 fw-semibold">
+                <i class="bi bi-shield-lock-fill me-1"></i> Staff Administration Portal
+            </span>
+            <h2 class="fw-bold mb-1 text-white">System Analytics &amp; Control Panel</h2>
+            <p class="text-light opacity-75 small mb-0">
+                Logged in as Staff Administrator: <strong>{{ user.username }}</strong> &bull; Total System Records: {{ total_predictions }}
+            </p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'admin_users' %}" class="btn btn-medical-outline text-white">
+                <i class="bi bi-people-fill me-1"></i> Manage Users
+            </a>
+            <a href="{% url 'admin_predictions' %}" class="btn btn-medical-primary text-white">
+                <i class="bi bi-journal-medical me-1"></i> Global Scans Log
+            </a>
+            <a href="/admin/" target="_blank" class="btn btn-outline-light">
+                <i class="bi bi-gear me-1"></i> Django Admin
+            </a>
+        </div>
+    </div>
+
+    <!-- Analytics Counters -->
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-xl-3">
+            <div class="stat-card">
+                <div class="stat-icon blue">
+                    <i class="bi bi-people-fill"></i>
+                </div>
+                <div>
+                    <div class="stat-value">{{ total_users }}</div>
+                    <div class="stat-label">Registered Accounts</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="stat-card">
+                <div class="stat-icon teal">
+                    <i class="bi bi-images"></i>
+                </div>
+                <div>
+                    <div class="stat-value">{{ total_predictions }}</div>
+                    <div class="stat-label">Total Inferences Run</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="stat-card">
+                <div class="stat-icon green">
+                    <i class="bi bi-check2-circle"></i>
+                </div>
+                <div>
+                    <div class="stat-value">{{ completed_predictions }}</div>
+                    <div class="stat-label">Successful Predictions</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="stat-card">
+                <div class="stat-icon amber">
+                    <i class="bi bi-cpu-fill"></i>
+                </div>
+                <div>
+                    <div class="stat-value">{% if model_ready %}ONLINE{% else %}STANDBY{% endif %}</div>
+                    <div class="stat-label">CNN Inference Engine</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Visual Charts & Disease Breakdown -->
+    <div class="row g-4 mb-4">
+        <div class="col-lg-7">
+            <div class="card-medical p-4 h-100">
+                <h5 class="fw-bold mb-3"><i class="bi bi-pie-chart-fill text-primary me-2"></i>Global Retinopathy Classification Distribution</h5>
+                <p class="text-muted small mb-3">Overall population breakdown across the 5 International Clinical Severity grades:</p>
+                <div style="height: 280px; position: relative;">
+                    <canvas id="adminDistributionChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="card-medical p-4 h-100">
+                <h5 class="fw-bold mb-3"><i class="bi bi-list-check text-teal me-2"></i>Severity Breakdown</h5>
+                <div class="list-group list-group-flush small">
+                    {% for code, data in class_distribution.items %}
+                    <div class="list-group-item d-flex justify-content-between align-items-center py-2 px-0">
+                        <div>
+                            <span class="badge bg-secondary me-2">{{ code }}</span>
+                            <strong>{{ data.label }}</strong>
+                        </div>
+                        <span class="badge bg-primary rounded-pill px-3">{{ data.count }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Global Inferences Table -->
+    <div class="card-medical p-4 mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold mb-0"><i class="bi bi-broadcast text-danger me-2"></i>Recent System-Wide Predictions</h5>
+            <a href="{% url 'admin_predictions' %}" class="small text-primary text-decoration-none fw-semibold">View All Records &rarr;</a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0 small">
+                <thead class="table-light">
+                    <tr>
+                        <th>Scan</th>
+                        <th>Clinician / User</th>
+                        <th>Classification Result</th>
+                        <th>Confidence</th>
+                        <th>Timestamp</th>
+                        <th class="text-end">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in recent_predictions %}
+                    <tr>
+                        <td>
+                            <img src="{{ item.image.url }}" alt="Scan" class="rounded" style="width: 44px; height: 44px; object-fit: cover;">
+                        </td>
+                        <td>
+                            <strong>{{ item.user.username }}</strong><br>
+                            <span class="text-muted" style="font-size: 0.75rem;">{{ item.user.email }}</span>
+                        </td>
+                        <td>
+                            <span class="badge {{ item.badge_class }}">{{ item.get_predicted_class_display }}</span>
+                        </td>
+                        <td>
+                            <strong>{{ item.confidence_percentage }}</strong>
+                        </td>
+                        <td class="text-muted">
+                            {{ item.created_at|date:"M d, Y H:i" }} UTC
+                        </td>
+                        <td class="text-end">
+                            <a href="{% url 'result' item.pk %}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-eye"></i> View
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-4 text-muted">No prediction records found in the database.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const labels = JSON.parse('{{ chart_labels_json|escapejs }}');
+    const data = JSON.parse('{{ chart_data_json|escapejs }}');
+
+    const ctx = document.getElementById('adminDistributionChart');
+    if (ctx) {
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: data,
+                    backgroundColor: ['#059669', '#0284c7', '#d97706', '#ea580c', '#dc2626'],
+                    borderWidth: 2,
+                    borderColor: '#ffffff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right'
+                    }
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

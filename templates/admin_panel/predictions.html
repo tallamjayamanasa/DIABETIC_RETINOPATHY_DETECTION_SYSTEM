@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Global Inferences Log | Staff Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4 px-md-5">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <div>
+            <h2 class="fw-bold mb-1"><i class="bi bi-journal-medical text-primary me-2"></i>Global Inferences Registry</h2>
+            <p class="text-muted small mb-0">System-wide monitoring of all uploaded retinal scans and CNN inference outputs</p>
+        </div>
+        <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Back to Admin Dashboard
+        </a>
+    </div>
+
+    <!-- Filter & Search Toolbar -->
+    <div class="card-medical p-3 mb-4 bg-white">
+        <form method="GET" action="{% url 'admin_predictions' %}" class="row g-2 align-items-center">
+            <div class="col-md-5">
+                <div class="input-group">
+                    <span class="input-group-text bg-light"><i class="bi bi-search"></i></span>
+                    <input type="text" name="q" value="{{ search_query|default:'' }}" class="form-control" placeholder="Search by username or notes...">
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <select name="stage" class="form-select">
+                    <option value="">All Classification Stages</option>
+                    {% for code, label in class_choices %}
+                    <option value="{{ code }}" {% if stage_filter == code %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-funnel me-1"></i> Filter Logs
+                </button>
+                {% if search_query or stage_filter %}
+                <a href="{% url 'admin_predictions' %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-x-circle"></i>
+                </a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    <!-- Predictions Table -->
+    <div class="card-medical overflow-hidden shadow-sm mb-4">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0 small">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width: 70px;">Scan</th>
+                        <th>User / Clinician</th>
+                        <th>Predicted DR Stage</th>
+                        <th>Confidence</th>
+                        <th>Severity</th>
+                        <th>Status</th>
+                        <th>Timestamp</th>
+                        <th class="text-end">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in page_obj %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'result' item.pk %}">
+                                <img src="{{ item.image.url }}" alt="Scan" class="rounded" style="width: 48px; height: 48px; object-fit: cover;">
+                            </a>
+                        </td>
+                        <td>
+                            <strong>{{ item.user.username }}</strong><br>
+                            <span class="text-muted" style="font-size: 0.75rem;">{{ item.user.email }}</span>
+                        </td>
+                        <td>
+                            <span class="badge {{ item.badge_class }}">{{ item.get_predicted_class_display }}</span>
+                        </td>
+                        <td>
+                            <strong>{{ item.confidence_percentage }}</strong>
+                        </td>
+                        <td>
+                            <span class="badge bg-light text-dark border">{{ item.severity_level }}</span>
+                        </td>
+                        <td>
+                            <span class="badge {% if item.status == 'COMPLETED' %}bg-success{% else %}bg-danger{% endif %}">
+                                {{ item.status }}
+                            </span>
+                        </td>
+                        <td class="text-muted">
+                            {{ item.created_at|date:"M d, Y H:i" }} UTC
+                        </td>
+                        <td class="text-end">
+                            <a href="{% url 'result' item.pk %}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-file-earmark-medical me-1"></i> Report
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center py-4 text-muted">No prediction records found matching filters.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if page_obj.has_other_pages %}
+        <div class="p-3 bg-light border-top d-flex justify-content-between align-items-center">
+            <span class="small text-muted">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+            <ul class="pagination pagination-sm mb-0">
+                {% if page_obj.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if stage_filter %}&stage={{ stage_filter }}{% endif %}">&laquo;</a></li>
+                {% endif %}
+                {% for num in page_obj.paginator.page_range %}
+                <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                    <a class="page-link" href="?page={{ num }}{% if search_query %}&q={{ search_query }}{% endif %}{% if stage_filter %}&stage={{ stage_filter }}{% endif %}">{{ num }}</a>
+                </li>
+                {% endfor %}
+                {% if page_obj.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if stage_filter %}&stage={{ stage_filter }}{% endif %}">&raquo;</a></li>
+                {% endif %}
+            </ul>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

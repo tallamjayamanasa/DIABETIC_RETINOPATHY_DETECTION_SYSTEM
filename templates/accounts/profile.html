@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}User Profile Management | MedVision AI{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row g-4">
+        <!-- Sidebar Navigation -->
+        <div class="col-lg-4">
+            <div class="card-medical p-4 text-center mb-4">
+                <div class="avatar-circle mx-auto mb-3 bg-light text-primary d-flex align-items-center justify-content-center rounded-circle" style="width: 80px; height: 80px; font-size: 2.2rem; border: 2px solid #0ea5e9;">
+                    <i class="bi bi-person-circle"></i>
+                </div>
+                <h4 class="fw-bold mb-1">{{ user.get_full_name|default:user.username }}</h4>
+                <p class="text-muted small mb-2">@{{ user.username }}</p>
+                <span class="badge bg-primary px-3 py-1 mb-3">{{ profile.role_title|default:"Healthcare Clinician" }}</span>
+
+                <div class="text-start bg-light p-3 rounded small">
+                    <div class="mb-2"><strong>Email:</strong> {{ user.email }}</div>
+                    <div class="mb-2"><strong>Hospital/Affiliation:</strong> {{ profile.organization_or_hospital|default:"Not specified" }}</div>
+                    <div class="mb-2"><strong>Phone:</strong> {{ profile.phone_number|default:"Not specified" }}</div>
+                    <div><strong>Member Since:</strong> {{ user.date_joined|date:"M d, Y" }}</div>
+                </div>
+            </div>
+
+            <div class="card-medical p-3">
+                <div class="list-group list-group-flush small">
+                    <a href="{% url 'dashboard' %}" class="list-group-item list-group-item-action d-flex align-items-center gap-2">
+                        <i class="bi bi-speedometer2 text-primary"></i> Clinical Dashboard
+                    </a>
+                    <a href="{% url 'upload' %}" class="list-group-item list-group-item-action d-flex align-items-center gap-2">
+                        <i class="bi bi-upload text-teal"></i> Analyze New Retinal Scan
+                    </a>
+                    <a href="{% url 'history' %}" class="list-group-item list-group-item-action d-flex align-items-center gap-2">
+                        <i class="bi bi-clock-history text-info"></i> Prediction Records
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Edit Form Tabs -->
+        <div class="col-lg-8">
+            <div class="card-medical p-4 p-md-5 mb-4">
+                <h4 class="fw-bold mb-3"><i class="bi bi-person-lines-fill text-primary me-2"></i>Edit Profile Details</h4>
+                <p class="text-muted small mb-4">Update your personal and clinical affiliation credentials.</p>
+
+                <form method="POST" action="{% url 'profile' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="update_profile">
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="{{ user_form.first_name.id_for_label }}" class="form-label fw-semibold">First Name</label>
+                            {{ user_form.first_name }}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ user_form.last_name.id_for_label }}" class="form-label fw-semibold">Last Name</label>
+                            {{ user_form.last_name }}
+                        </div>
+                        <div class="col-12">
+                            <label for="{{ user_form.email.id_for_label }}" class="form-label fw-semibold">Email Address</label>
+                            {{ user_form.email }}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="{{ profile_form.phone_number.id_for_label }}" class="form-label fw-semibold">Phone Number</label>
+                            {{ profile_form.phone_number }}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ profile_form.role_title.id_for_label }}" class="form-label fw-semibold">Professional Role</label>
+                            {{ profile_form.role_title }}
+                        </div>
+                        <div class="col-12">
+                            <label for="{{ profile_form.organization_or_hospital.id_for_label }}" class="form-label fw-semibold">Hospital or Institute Affiliation</label>
+                            {{ profile_form.organization_or_hospital }}
+                        </div>
+
+                        <div class="col-12 mt-3">
+                            <button type="submit" class="btn btn-medical-primary px-4 py-2">
+                                <i class="bi bi-check2-circle me-1"></i> Save Changes
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Password Change Section -->
+            <div class="card-medical p-4 p-md-5">
+                <h4 class="fw-bold mb-3"><i class="bi bi-shield-lock text-danger me-2"></i>Change Password</h4>
+                <p class="text-muted small mb-4">Ensure your account is protected with a robust password.</p>
+
+                <form method="POST" action="{% url 'profile' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="change_password">
+
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label for="{{ password_form.old_password.id_for_label }}" class="form-label fw-semibold">Current Password</label>
+                            {{ password_form.old_password }}
+                            {% if password_form.old_password.errors %}
+                            <div class="text-danger small mt-1">{{ password_form.old_password.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="{{ password_form.new_password1.id_for_label }}" class="form-label fw-semibold">New Password</label>
+                            {{ password_form.new_password1 }}
+                            {% if password_form.new_password1.errors %}
+                            <div class="text-danger small mt-1">{{ password_form.new_password1.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="{{ password_form.new_password2.id_for_label }}" class="form-label fw-semibold">Confirm New Password</label>
+                            {{ password_form.new_password2 }}
+                            {% if password_form.new_password2.errors %}
+                            <div class="text-danger small mt-1">{{ password_form.new_password2.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-12 mt-3">
+                            <button type="submit" class="btn btn-outline-danger px-4 py-2">
+                                <i class="bi bi-key-fill me-1"></i> Update Password
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

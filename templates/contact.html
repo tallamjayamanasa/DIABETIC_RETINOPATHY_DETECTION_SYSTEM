@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Contact Healthcare & Technical Support{% endblock %}
+
+{% block content %}
+<div class="bg-dark text-white py-5" style="background: linear-gradient(135deg, #071527 0%, #0a2540 100%);">
+    <div class="container py-3">
+        <span class="badge bg-info text-dark mb-2 px-3 py-1 fw-bold">Support &amp; Research Inquiries</span>
+        <h1 class="fw-bold display-5 text-white">Contact &amp; Support</h1>
+        <p class="lead text-light opacity-75 mb-0" style="max-width: 650px;">
+            Have technical questions about our CNN model, dataset integrations, or academic evaluation? Get in touch with our engineering team.
+        </p>
+    </div>
+</div>
+
+<div class="container section-padding">
+    <div class="row g-5">
+        <div class="col-lg-7">
+            <div class="card-medical p-4 p-md-5">
+                <h3 class="fw-bold mb-3">Send us a Message</h3>
+                <p class="text-muted small mb-4">
+                    Fill out the form below. Messages are saved securely and reviewed by our project team.
+                </p>
+
+                <form method="POST" action="{% url 'contact' %}" class="needs-validation" novalidate>
+                    {% csrf_token %}
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="{{ form.name.id_for_label }}" class="form-label fw-semibold">Your Full Name <span class="text-danger">*</span></label>
+                            {{ form.name }}
+                            {% if form.name.errors %}
+                            <div class="text-danger small mt-1">{{ form.name.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="{{ form.email.id_for_label }}" class="form-label fw-semibold">Email Address <span class="text-danger">*</span></label>
+                            {{ form.email }}
+                            {% if form.email.errors %}
+                            <div class="text-danger small mt-1">{{ form.email.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-12">
+                            <label for="{{ form.subject.id_for_label }}" class="form-label fw-semibold">Subject <span class="text-danger">*</span></label>
+                            {{ form.subject }}
+                            {% if form.subject.errors %}
+                            <div class="text-danger small mt-1">{{ form.subject.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-12">
+                            <label for="{{ form.message.id_for_label }}" class="form-label fw-semibold">Message <span class="text-danger">*</span></label>
+                            {{ form.message }}
+                            {% if form.message.errors %}
+                            <div class="text-danger small mt-1">{{ form.message.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-12 mt-4">
+                            <button type="submit" class="btn btn-medical-primary px-4 py-2">
+                                <i class="bi bi-send-fill me-2"></i> Submit Inquiry
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="card-medical p-4 mb-4">
+                <h5 class="fw-bold mb-3"><i class="bi bi-geo-alt-fill text-danger me-2"></i>Academic Project Lab</h5>
+                <p class="text-muted small mb-3">
+                    Department of Computer Science &amp; Engineering<br>
+                    Medical Image Computing &amp; Deep Learning Laboratory
+                </p>
+                <hr>
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <i class="bi bi-envelope-at-fill text-primary fs-5"></i>
+                    <div>
+                        <small class="text-muted d-block">Academic Inquiries</small>
+                        <span class="fw-semibold text-dark">research@retina-ai.project</span>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <i class="bi bi-clock-history text-success fs-5"></i>
+                    <div>
+                        <small class="text-muted d-block">System Availability</small>
+                        <span class="fw-semibold text-dark">24 / 7 Automated Inference</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4 rounded bg-info bg-opacity-10 border border-info">
+                <h6 class="fw-bold text-info-emphasis mb-2"><i class="bi bi-question-circle-fill me-1"></i> Frequently Asked Question</h6>
+                <p class="small text-muted mb-0">
+                    <strong>Can I use this for real clinical diagnosis?</strong><br>
+                    No. The model is an academic decision-support prototype. Any patient presenting with visual symptoms should undergo a dilated fundus exam by an eye-care professional.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,16 @@
+# Diabetic Retinopathy Detection System - Dependencies
+# Python 3.10+ / 3.11 / 3.12 / 3.14 Compatible
+
+Django>=5.0.0
+Pillow>=10.0.0
+numpy>=1.26.0
+opencv-python>=4.8.0
+scikit-learn>=1.4.0
+torch>=2.0.0
+torchvision>=0.18.0
+onnxruntime>=1.20.0
+
+# TensorFlow & Keras (Standard deep learning backend)
+# Note: For production and development environments supporting TensorFlow:
+tensorflow>=2.15.0; python_version < "3.14"
+keras>=3.0.0; python_version < "3.14"

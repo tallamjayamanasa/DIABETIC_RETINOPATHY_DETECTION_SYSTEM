@@ -1,0 +1,16 @@
+{
+  "architecture": "RetinalCNN",
+  "classes": [
+    "Mild",
+    "Moderate",
+    "No_DR",
+    "Proliferative_DR",
+    "Severe"
+  ],
+  "input_size": [
+    224,
+    224
+  ],
+  "best_val_accuracy": 0.6,
+  "device": "cpu"
+}

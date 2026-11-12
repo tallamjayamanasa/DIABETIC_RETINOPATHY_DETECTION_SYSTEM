@@ -1,0 +1,124 @@
+/* =====================================================================
+   Diabetic Retinopathy Detection System - Responsive Stylesheet
+   Mobile, Tablet, Laptop, and Large Desktop Viewport Adjustments
+   ===================================================================== */
+
+/* Extra small devices (phones, portrait < 576px) */
+@media (max-width: 575.98px) {
+  .hero-title {
+    font-size: 2rem;
+  }
+
+  .hero-subtitle {
+    font-size: 0.98rem;
+  }
+
+  .hero-medical {
+    padding: 3.5rem 0 3rem;
+  }
+
+  .section-padding {
+    padding: 3rem 0;
+  }
+
+  .section-title {
+    font-size: 1.75rem;
+  }
+
+  .dropzone-container {
+    padding: 2rem 1rem;
+  }
+
+  .dropzone-icon {
+    font-size: 2.75rem;
+  }
+
+  .stat-card {
+    padding: 1rem;
+  }
+
+  .stat-value {
+    font-size: 1.5rem;
+  }
+
+  .table-responsive {
+    font-size: 0.85rem;
+  }
+
+  .btn-medical-primary,
+  .btn-medical-outline,
+  .btn-medical-navy {
+    width: 100%;
+    margin-bottom: 0.5rem;
+    text-align: center;
+  }
+
+  .hero-cta-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+
+/* Small devices (landscape phones, 576px and up to 767.98px) */
+@media (min-width: 576px) and (max-width: 767.98px) {
+  .hero-title {
+    font-size: 2.35rem;
+  }
+
+  .section-title {
+    font-size: 1.9rem;
+  }
+
+  .section-padding {
+    padding: 3.5rem 0;
+  }
+}
+
+/* Medium devices (tablets, 768px and up to 991.98px) */
+@media (min-width: 768px) and (max-width: 991.98px) {
+  .hero-title {
+    font-size: 2.5rem;
+  }
+
+  .navbar-nav {
+    padding-top: 1rem;
+    gap: 0.25rem;
+  }
+}
+
+/* Desktop and Large Screens (992px and up) */
+@media (min-width: 992px) {
+  .navbar-expand-lg .navbar-nav {
+    gap: 0.5rem;
+  }
+
+  .hero-medical {
+    padding: 5.5rem 0 5rem;
+  }
+
+  .hero-title {
+    font-size: 3.1rem;
+  }
+}
+
+/* Print Styles for Clinical Reports */
+@media print {
+  .medical-navbar,
+  .medical-footer,
+  .btn,
+  .hero-pill,
+  .no-print {
+    display: none !important;
+  }
+
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  .card-medical {
+    border: 1px solid #ccc !important;
+    box-shadow: none !important;
+  }
+}

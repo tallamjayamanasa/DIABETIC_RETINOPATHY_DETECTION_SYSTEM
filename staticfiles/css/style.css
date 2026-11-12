@@ -1,0 +1,452 @@
+/* =====================================================================
+   Diabetic Retinopathy Detection System - Medical AI Theme
+   Color Palette: Navy Blue, Teal, White, Cyan, Light Slate
+   ===================================================================== */
+
+:root {
+  --navy-primary: #0a1f38;
+  --navy-dark: #061324;
+  --navy-light: #163255;
+  --teal-primary: #0d9488;
+  --teal-light: #14b8a6;
+  --cyan-primary: #0284c7;
+  --cyan-light: #38bdf8;
+  --accent-blue: #2563eb;
+  --bg-light: #f8fafc;
+  --bg-white: #ffffff;
+  --text-dark: #0f172a;
+  --text-body: #334155;
+  --text-muted: #64748b;
+  --border-subtle: #e2e8f0;
+  --shadow-sm: 0 1px 3px rgba(10, 31, 56, 0.06);
+  --shadow-md: 0 4px 14px rgba(10, 31, 56, 0.08);
+  --shadow-lg: 0 10px 30px rgba(10, 31, 56, 0.12);
+  --shadow-glow: 0 0 25px rgba(14, 165, 233, 0.25);
+  
+  /* DR Clinical Severity Colors */
+  --dr-no-dr: #059669;
+  --dr-mild: #0284c7;
+  --dr-moderate: #d97706;
+  --dr-severe: #ea580c;
+  --dr-pdr: #dc2626;
+
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: var(--text-body);
+  background-color: var(--bg-light);
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1 0 auto;
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Poppins', var(--font-family-sans-serif, sans-serif);
+  color: var(--navy-primary);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+/* =====================================================================
+   NAVBAR
+   ===================================================================== */
+.medical-navbar {
+  background: rgba(10, 31, 56, 0.96);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0.85rem 0;
+  transition: all 0.3s ease;
+}
+
+.medical-navbar .navbar-brand {
+  font-weight: 700;
+  font-size: 1.35rem;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.medical-navbar .brand-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(14, 165, 233, 0.4);
+}
+
+.medical-navbar .brand-highlight {
+  color: var(--cyan-light);
+}
+
+.medical-navbar .nav-link {
+  color: #cbd5e1;
+  font-weight: 500;
+  font-size: 0.95rem;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  transition: all 0.25s ease;
+}
+
+.medical-navbar .nav-link:hover,
+.medical-navbar .nav-link.active {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.medical-navbar .nav-link.active {
+  color: var(--cyan-light);
+}
+
+/* =====================================================================
+   BUTTONS
+   ===================================================================== */
+.btn-medical-primary {
+  background: linear-gradient(135deg, var(--teal-primary) 0%, #0891b2 100%);
+  color: #ffffff;
+  border: none;
+  font-weight: 600;
+  padding: 0.65rem 1.4rem;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 4px 12px rgba(13, 148, 136, 0.3);
+  transition: all 0.25s ease;
+}
+
+.btn-medical-primary:hover {
+  background: linear-gradient(135deg, #0f766e 0%, #0e7490 100%);
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(13, 148, 136, 0.4);
+}
+
+.btn-medical-outline {
+  background: transparent;
+  color: var(--cyan-light);
+  border: 1.5px solid rgba(56, 189, 248, 0.6);
+  font-weight: 600;
+  padding: 0.65rem 1.4rem;
+  border-radius: var(--radius-sm);
+  transition: all 0.25s ease;
+}
+
+.btn-medical-outline:hover {
+  background: rgba(56, 189, 248, 0.12);
+  color: #ffffff;
+  border-color: var(--cyan-light);
+  transform: translateY(-2px);
+}
+
+.btn-medical-navy {
+  background: var(--navy-primary);
+  color: #ffffff;
+  border: none;
+  font-weight: 600;
+  padding: 0.65rem 1.4rem;
+  border-radius: var(--radius-sm);
+  transition: all 0.25s ease;
+}
+
+.btn-medical-navy:hover {
+  background: var(--navy-light);
+  color: #ffffff;
+  transform: translateY(-2px);
+}
+
+/* =====================================================================
+   HERO SECTION
+   ===================================================================== */
+.hero-medical {
+  position: relative;
+  background: radial-gradient(circle at 80% 20%, #163255 0%, #0a1f38 60%, #061324 100%);
+  color: #ffffff;
+  padding: 5rem 0 4.5rem;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.hero-medical::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('../images/background.jpg') center/cover no-repeat;
+  opacity: 0.15;
+  pointer-events: none;
+}
+
+.hero-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(14, 165, 233, 0.15);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  color: var(--cyan-light);
+  padding: 0.4rem 1rem;
+  border-radius: 50px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 1.25rem;
+}
+
+.hero-title {
+  color: #ffffff;
+  font-size: 2.85rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 1.25rem;
+}
+
+.hero-subtitle {
+  color: #cbd5e1;
+  font-size: 1.12rem;
+  line-height: 1.7;
+  max-width: 580px;
+  margin-bottom: 2rem;
+}
+
+.hero-image-wrapper {
+  position: relative;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-glow), 0 20px 40px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+}
+
+.hero-image-wrapper img {
+  width: 100%;
+  height: auto;
+  display: block;
+  transition: transform 0.6s ease;
+}
+
+.hero-image-wrapper:hover img {
+  transform: scale(1.02);
+}
+
+/* =====================================================================
+   CARDS & SECTIONS
+   ===================================================================== */
+.section-padding {
+  padding: 4.5rem 0;
+}
+
+.section-title {
+  font-size: 2.1rem;
+  margin-bottom: 0.75rem;
+  font-weight: 700;
+}
+
+.section-subtitle {
+  color: var(--text-muted);
+  font-size: 1.05rem;
+  max-width: 650px;
+  margin: 0 auto 3rem;
+}
+
+.card-medical {
+  background: #ffffff;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.card-medical:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+  border-color: #cbd5e1;
+}
+
+.card-stage {
+  border-top: 4px solid var(--teal-primary);
+  height: 100%;
+}
+
+.card-stage.grade-0 { border-top-color: var(--dr-no-dr); }
+.card-stage.grade-1 { border-top-color: var(--dr-mild); }
+.card-stage.grade-2 { border-top-color: var(--dr-moderate); }
+.card-stage.grade-3 { border-top-color: var(--dr-severe); }
+.card-stage.grade-4 { border-top-color: var(--dr-pdr); }
+
+.feature-icon-box {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  margin-bottom: 1.25rem;
+  background: #f0fdfa;
+  color: var(--teal-primary);
+  border: 1px solid #ccfbf1;
+}
+
+/* =====================================================================
+   UPLOAD DROPZONE
+   ===================================================================== */
+.dropzone-container {
+  border: 2px dashed #94a3b8;
+  border-radius: var(--radius-md);
+  padding: 3rem 2rem;
+  text-align: center;
+  background: #ffffff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.dropzone-container:hover,
+.dropzone-container.dragover {
+  border-color: var(--cyan-primary);
+  background: #f0f9ff;
+}
+
+.dropzone-icon {
+  font-size: 3.5rem;
+  color: var(--cyan-primary);
+  margin-bottom: 1rem;
+}
+
+.preview-container {
+  max-width: 380px;
+  margin: 1.5rem auto 0;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  position: relative;
+  display: none;
+}
+
+.preview-container img {
+  width: 100%;
+  max-height: 380px;
+  object-fit: contain;
+  background: #0b1f3a;
+}
+
+/* =====================================================================
+   SEVERITY BADGES & BARS
+   ===================================================================== */
+.badge-no-dr { background-color: var(--dr-no-dr); color: #fff; }
+.badge-mild { background-color: var(--dr-mild); color: #fff; }
+.badge-moderate { background-color: var(--dr-moderate); color: #fff; }
+.badge-severe { background-color: var(--dr-severe); color: #fff; }
+.badge-pdr { background-color: var(--dr-pdr); color: #fff; }
+
+.confidence-meter {
+  height: 12px;
+  border-radius: 6px;
+  background-color: #e2e8f0;
+  overflow: hidden;
+}
+
+.confidence-bar {
+  height: 100%;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #0d9488, #0ea5e9);
+  transition: width 1s ease-in-out;
+}
+
+/* =====================================================================
+   MEDICAL DISCLAIMER BOX
+   ===================================================================== */
+.medical-disclaimer-box {
+  background: #fffbeb;
+  border-left: 4px solid #f59e0b;
+  border-radius: var(--radius-sm);
+  padding: 1rem 1.25rem;
+  font-size: 0.9rem;
+  color: #92400e;
+}
+
+/* =====================================================================
+   FOOTER
+   ===================================================================== */
+.medical-footer {
+  background: var(--navy-dark);
+  color: #94a3b8;
+  padding: 4rem 0 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.92rem;
+}
+
+.medical-footer h5 {
+  color: #ffffff;
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin-bottom: 1.25rem;
+}
+
+.medical-footer a {
+  color: #94a3b8;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.medical-footer a:hover {
+  color: var(--cyan-light);
+}
+
+.footer-bottom {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding-top: 1.75rem;
+  margin-top: 3rem;
+  font-size: 0.85rem;
+}
+
+/* =====================================================================
+   DASHBOARD STATS CARDS
+   ===================================================================== */
+.stat-card {
+  background: #ffffff;
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  border: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.stat-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+.stat-icon.blue { background: #eff6ff; color: #2563eb; }
+.stat-icon.teal { background: #f0fdfa; color: #0d9488; }
+.stat-icon.green { background: #ecfdf5; color: #059669; }
+.stat-icon.amber { background: #fffbeb; color: #d97706; }
+.stat-icon.red { background: #fef2f2; color: #dc2626; }
+
+.stat-value {
+  font-size: 1.85rem;
+  font-weight: 700;
+  color: var(--navy-primary);
+  line-height: 1.1;
+}
+
+.stat-label {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}

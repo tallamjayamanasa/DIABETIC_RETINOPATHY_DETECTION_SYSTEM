@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Analysis Result - {{ record.get_predicted_class_display }} | MedVision AI{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb small">
+            <li class="breadcrumb-item"><a href="{% url 'dashboard' %}" class="text-decoration-none">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'history' %}" class="text-decoration-none">History</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Scan #{{ record.id }}</li>
+        </ol>
+    </nav>
+
+    <!-- Result Header Card -->
+    <div class="card-medical p-4 mb-4 border-0 shadow-sm" style="background: linear-gradient(135deg, #0a1f38 0%, #163255 100%); color: #fff;">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+            <div>
+                <div class="d-flex flex-wrap gap-2 mb-2">
+                    <span class="badge bg-info text-dark px-3 py-1 fw-semibold">
+                        <i class="bi bi-file-earmark-medical me-1"></i> Analysis Report #{{ record.id }}
+                    </span>
+                    <span class="badge bg-secondary text-white px-3 py-1 fw-semibold">
+                        <i class="bi bi-eye me-1"></i> Retinal Fundus Scan
+                    </span>
+                    {% if record.is_fundus_validated %}
+                    <span class="badge bg-success text-white px-3 py-1 fw-semibold">
+                        <i class="bi bi-shield-check me-1"></i> Genuine Fundus Verified
+                    </span>
+                    {% endif %}
+                </div>
+                <h2 class="fw-bold mb-1 text-white">{{ record.get_predicted_class_display }}</h2>
+                <p class="text-light opacity-75 small mb-0">
+                    Analyzed on {{ record.created_at|date:"F d, Y" }} at {{ record.created_at|time:"H:i:s" }} UTC &bull; Clinician: <strong>{{ record.user.get_full_name|default:record.user.username }}</strong>
+                </p>
+            </div>
+            <div class="text-md-end">
+                <span class="d-block small text-light opacity-75">Model Confidence</span>
+                <span class="display-6 fw-bold text-info">{{ record.confidence_percentage }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Retinal Image & Scan Details -->
+        <div class="col-lg-5">
+            <div class="card-medical p-4 mb-4 text-center">
+                <h5 class="fw-bold mb-3 text-start d-flex align-items-center justify-content-between">
+                    <span><i class="bi bi-image text-primary me-2"></i>Retinal Fundus Scan</span>
+                    <span class="badge bg-light text-secondary border small">{{ record.get_capture_source_display }}</span>
+                </h5>
+                <div class="rounded overflow-hidden border shadow-sm mb-3 position-relative" style="background: #000;">
+                    <img src="{{ record.image.url }}" alt="Retinal Fundus Image" class="img-fluid" style="max-height: 380px; width: 100%; object-fit: contain;">
+                </div>
+
+                {% if record.preprocessed_image %}
+                <div class="mb-3">
+                    <button class="btn btn-sm btn-outline-info w-100 text-dark fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#preprocCollapse" aria-expanded="false" aria-controls="preprocCollapse">
+                        <i class="bi bi-layers-fill me-1"></i> View Preprocessed CLAHE Scan
+                    </button>
+                    <div class="collapse mt-2" id="preprocCollapse">
+                        <div class="card card-body p-2 bg-dark border-0 text-center">
+                            <img src="{{ record.preprocessed_image.url }}" alt="CLAHE Preprocessed" class="img-fluid rounded" style="max-height: 280px; width: 100%; object-fit: contain;">
+                            <span class="text-light small mt-1 opacity-75">CLAHE Contrast-Enhanced Retinal Vessels</span>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                {% if record.notes %}
+                <div class="p-3 bg-light rounded text-start border small">
+                    <strong class="text-dark d-block mb-1"><i class="bi bi-pencil-square me-1"></i> Clinical Notes:</strong>
+                    <span class="text-muted">{{ record.notes }}</span>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="card-medical p-3 d-flex flex-column gap-2 no-print">
+                <a href="{% url 'upload' %}" class="btn btn-medical-primary">
+                    <i class="bi bi-cloud-arrow-up me-1"></i> Analyze Another Image
+                </a>
+                <a href="{% url 'history' %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-clock-history me-1"></i> View Scan History
+                </a>
+                <button type="button" class="btn btn-outline-dark" onclick="window.print();">
+                    <i class="bi bi-printer me-1"></i> Print / Save Clinical Report
+                </button>
+            </div>
+        </div>
+
+        <!-- Diagnostic Metrics & Clinical Findings -->
+        <div class="col-lg-7">
+            <!-- Stage Classification Card -->
+            <div class="card-medical p-4 mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold mb-0"><i class="bi bi-activity text-teal me-2"></i>Classification Findings</h5>
+                    <span class="badge {{ record.badge_class }} px-3 py-2 fs-6">
+                        Severity Level: {{ record.severity_level }}
+                    </span>
+                </div>
+
+                <!-- Confidence Meter -->
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between small text-muted mb-1">
+                        <span>Confidence Probability Indicator</span>
+                        <strong class="text-dark">{{ record.confidence_percentage }}</strong>
+                    </div>
+                    <div class="confidence-meter">
+                        <div class="confidence-bar" style="width: {{ record.confidence_percentage }};"> </div>
+                    </div>
+                    <small class="text-muted" style="font-size: 0.75rem;">
+                        Note: Confidence reflects statistical pattern similarity, not absolute diagnostic certainty.
+                    </small>
+                </div>
+
+                <!-- Clinical Description -->
+                <div class="mb-3">
+                    <h6 class="fw-bold text-dark mb-1">Pathological Characteristics:</h6>
+                    <p class="text-muted small">
+                        {{ record.human_description }}
+                    </p>
+                </div>
+
+                <!-- Clinical Recommendation -->
+                <div class="p-3 rounded bg-light border border-info border-opacity-50 mb-0">
+                    <h6 class="fw-bold text-primary mb-1">
+                        <i class="bi bi-hospital me-1"></i> Suggested Triage &amp; Clinical Follow-Up:
+                    </h6>
+                    <p class="small text-dark mb-0">
+                        {{ record.clinical_recommendation }}
+                    </p>
+                </div>
+            </div>
+
+            <!-- Softmax Class Distribution Chart -->
+            <div class="card-medical p-4 mb-4">
+                <h5 class="fw-bold mb-3"><i class="bi bi-bar-chart-line text-primary me-2"></i>Class Probability Distribution</h5>
+                <p class="text-muted small mb-3">
+                    Relative probability distribution across all 5 International Clinical Severity stages calculated by the Softmax output layer:
+                </p>
+                <div style="height: 240px; position: relative;">
+                    <canvas id="probabilityChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Medical Disclaimer Box -->
+            <div class="medical-disclaimer-box">
+                <div class="d-flex gap-2 align-items-start">
+                    <i class="bi bi-shield-exclamation fs-5 flex-shrink-0 mt-1"></i>
+                    <div>
+                        <strong>Academic Medical Protocol Disclaimer:</strong>
+                        This report was generated by an experimental deep convolutional neural network decision-support algorithm. It is NOT a definitive clinical diagnosis. Final medical conclusions must be verified by a licensed ophthalmologist or retinal specialist with dilated biomicroscopy.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const rawData = JSON.parse('{{ probabilities_json|escapejs }}');
+    renderProbabilityChart('probabilityChart', rawData);
+});
+</script>
+{% endblock %}

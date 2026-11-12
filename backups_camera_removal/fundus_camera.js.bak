@@ -1,0 +1,314 @@
+/**
+ * Fundus Camera Module - Client JavaScript
+ * Manages live video stream, circular aperture capture, client-side validation,
+ * preprocessing previews (Original, Green Channel, CLAHE), and CNN analysis submission.
+ */
+
+document.addEventListener('DOMContentLoaded', function () {
+    // Elements
+    const video = document.getElementById('cameraVideo');
+    const captureCanvas = document.getElementById('captureCanvas');
+    const startCameraBtn = document.getElementById('startCameraBtn');
+    const captureBtn = document.getElementById('captureBtn');
+    const switchCameraBtn = document.getElementById('switchCameraBtn');
+    const stopCameraBtn = document.getElementById('stopCameraBtn');
+    const cameraStatusText = document.getElementById('cameraStatusText');
+    const viewfinderCard = document.getElementById('viewfinderCard');
+    const cameraPlaceholder = document.getElementById('cameraPlaceholder');
+
+    // Validation & Preview Elements
+    const validationBox = document.getElementById('validationBox');
+    const validationStatusTitle = document.getElementById('validationStatusTitle');
+    const validationMessage = document.getElementById('validationMessage');
+    const qualityScoreBar = document.getElementById('qualityScoreBar');
+    const qualityScoreText = document.getElementById('qualityScoreText');
+    const validationMetrics = document.getElementById('validationMetrics');
+
+    const preprocessingSection = document.getElementById('preprocessingSection');
+    const previewOriginal = document.getElementById('previewOriginal');
+    const previewGreen = document.getElementById('previewGreen');
+    const previewClahe = document.getElementById('previewClahe');
+
+    // Form Elements
+    const fundusForm = document.getElementById('fundusProcessingForm');
+    const imageBase64Input = document.getElementById('imageBase64Input');
+    const captureSourceInput = document.getElementById('captureSourceInput');
+    const submitAnalyzeBtn = document.getElementById('submitAnalyzeBtn');
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+
+    // File Upload Elements
+    const fundusFileInput = document.getElementById('fundusFileInput');
+    const fileDropzone = document.getElementById('fundusFileDropzone');
+    const uploadedFileName = document.getElementById('uploadedFileName');
+
+    let stream = null;
+    let currentFacingMode = 'environment'; // Prefer rear camera if mobile
+    let hasValidImage = false;
+
+    // =========================================================================
+    // 1. Camera Control Pipeline
+    // =========================================================================
+
+    async function startCamera() {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            updateStatus("Camera access is not supported by your browser or environment. Please use HTTPS or localhost.", "danger");
+            return;
+        }
+
+        stopCameraStream();
+
+        try {
+            updateStatus("Connecting to optical camera...", "info");
+            const constraints = {
+                video: {
+                    facingMode: currentFacingMode,
+                    width: { ideal: 1920 },
+                    height: { ideal: 1080 }
+                },
+                audio: false
+            };
+
+            stream = await navigator.mediaDevices.getUserMedia(constraints);
+            video.srcObject = stream;
+            await video.play();
+
+            video.hidden = false;
+            cameraPlaceholder.hidden = true;
+            startCameraBtn.disabled = true;
+            captureBtn.disabled = false;
+            stopCameraBtn.disabled = false;
+            if (switchCameraBtn) switchCameraBtn.disabled = false;
+
+            updateStatus("Camera active. Align eye within optical aperture ring and hold steady.", "success");
+        } catch (err) {
+            console.error("Camera Error:", err);
+            updateStatus("Camera permission denied or camera device in use. Please check browser permissions.", "danger");
+        }
+    }
+
+    function stopCameraStream() {
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+            stream = null;
+        }
+        if (video) {
+            video.srcObject = null;
+            video.hidden = true;
+        }
+        if (cameraPlaceholder) cameraPlaceholder.hidden = false;
+        if (startCameraBtn) startCameraBtn.disabled = false;
+        if (captureBtn) captureBtn.disabled = true;
+        if (stopCameraBtn) stopCameraBtn.disabled = true;
+        updateStatus("Camera stopped. Click Start Camera to begin.", "secondary");
+    }
+
+    function updateStatus(message, type = "info") {
+        if (cameraStatusText) {
+            cameraStatusText.textContent = message;
+            cameraStatusText.className = `small fw-semibold text-${type}`;
+        }
+    }
+
+    if (startCameraBtn) startCameraBtn.addEventListener('click', startCamera);
+    if (stopCameraBtn) stopCameraBtn.addEventListener('click', stopCameraStream);
+
+    if (switchCameraBtn) {
+        switchCameraBtn.addEventListener('click', async () => {
+            currentFacingMode = (currentFacingMode === 'environment') ? 'user' : 'environment';
+            await startCamera();
+        });
+    }
+
+    // =========================================================================
+    // 2. Snapshot Capture & Retinal Validation
+    // =========================================================================
+
+    if (captureBtn) {
+        captureBtn.addEventListener('click', function () {
+            if (!stream || video.videoWidth === 0) {
+                alert("Please start the camera and wait for the video feed.");
+                return;
+            }
+
+            // Set canvas dimensions
+            captureCanvas.width = video.videoWidth;
+            captureCanvas.height = video.videoHeight;
+            const ctx = captureCanvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, captureCanvas.width, captureCanvas.height);
+
+            // Shutter flash effect
+            viewfinderCard.classList.add('scanning-active');
+            setTimeout(() => viewfinderCard.classList.remove('scanning-active'), 500);
+
+            // Export to JPEG
+            const base64Data = captureCanvas.toDataURL('image/jpeg', 0.95);
+            imageBase64Input.value = base64Data;
+            captureSourceInput.value = 'CAMERA';
+
+            // Send to Validation & Preprocessing Engine
+            sendForValidation({ image_base64: base64Data });
+        });
+    }
+
+    // =========================================================================
+    // 3. File Upload Workflow (Tab 2)
+    // =========================================================================
+
+    if (fileDropzone && fundusFileInput) {
+        fileDropzone.addEventListener('click', () => fundusFileInput.click());
+
+        ['dragenter', 'dragover'].forEach(name => {
+            fileDropzone.addEventListener(name, (e) => {
+                e.preventDefault();
+                fileDropzone.classList.add('border-primary', 'bg-light');
+            });
+        });
+
+        ['dragleave', 'drop'].forEach(name => {
+            fileDropzone.addEventListener(name, (e) => {
+                e.preventDefault();
+                fileDropzone.classList.remove('border-primary', 'bg-light');
+            });
+        });
+
+        fileDropzone.addEventListener('drop', (e) => {
+            if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                fundusFileInput.files = e.dataTransfer.files;
+                handleSelectedFile(e.dataTransfer.files[0]);
+            }
+        });
+
+        fundusFileInput.addEventListener('change', () => {
+            if (fundusFileInput.files && fundusFileInput.files.length > 0) {
+                handleSelectedFile(fundusFileInput.files[0]);
+            }
+        });
+    }
+
+    function handleSelectedFile(file) {
+        if (!file.type.startsWith('image/')) {
+            alert('Please select a valid image file (JPG, JPEG, PNG).');
+            return;
+        }
+
+        if (uploadedFileName) {
+            uploadedFileName.textContent = `${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const base64Data = e.target.result;
+            imageBase64Input.value = base64Data;
+            captureSourceInput.value = 'UPLOAD';
+            sendForValidation({ image_base64: base64Data });
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // =========================================================================
+    // 4. Asynchronous Retinal Validation API Call
+    // =========================================================================
+
+    async function sendForValidation(payload) {
+        if (!validationBox) return;
+
+        // Show verifying state
+        validationBox.hidden = false;
+        validationBox.className = "validation-result-box bg-light border p-3";
+        validationStatusTitle.innerHTML = '<span class="spinner-border spinner-border-sm text-primary me-2"></span>Verifying Genuine Retinal Fundus Signature...';
+        validationMessage.textContent = "Scanning optical spectrum, detecting facial features, and assessing retinal vessel gradients...";
+        submitAnalyzeBtn.disabled = true;
+
+        try {
+            const response = await fetch('/fundus-camera/validate/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken || ''
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await response.json();
+
+            if (data.status === 'SUCCESS' && data.is_valid) {
+                // PASS
+                hasValidImage = true;
+                validationBox.className = "validation-result-box valid";
+                validationStatusTitle.innerHTML = '<i class="bi bi-shield-check-fill text-success fs-5 me-2"></i>Genuine Retinal Fundus Verified';
+                validationMessage.textContent = data.clinical_message || "Optical spectrum and retinal vasculature confirmed. Ready for CNN analysis.";
+
+                // Render metrics
+                if (qualityScoreBar) qualityScoreBar.style.width = `${data.quality_score}%`;
+                if (qualityScoreText) qualityScoreText.textContent = `${data.quality_score}%`;
+
+                if (validationMetrics && data.details) {
+                    validationMetrics.innerHTML = `
+                        <span class="validation-metric-badge text-success"><i class="bi bi-check-circle"></i> No Face/Selfie</span>
+                        <span class="validation-metric-badge text-primary"><i class="bi bi-palette"></i> R/B Ratio: ${data.details.rb_ratio}</span>
+                        <span class="validation-metric-badge text-teal"><i class="bi bi-eye"></i> Retinal Hue: ${data.details.retinal_hue_pct}%</span>
+                        <span class="validation-metric-badge text-dark"><i class="bi bi-activity"></i> Vessel Gradient: ${data.details.vessel_gradient_score}</span>
+                    `;
+                }
+
+                // Show Preprocessing Channels
+                if (data.previews && preprocessingSection) {
+                    previewOriginal.src = data.previews.original;
+                    previewGreen.src = data.previews.green;
+                    previewClahe.src = data.previews.clahe;
+                    preprocessingSection.hidden = false;
+                }
+
+                submitAnalyzeBtn.disabled = false;
+                submitAnalyzeBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+            } else {
+                // REJECTED
+                hasValidImage = false;
+                validationBox.className = "validation-result-box invalid";
+                validationStatusTitle.innerHTML = '<i class="bi bi-exclamation-triangle-fill text-danger fs-5 me-2"></i>Image Rejected: Non-Retinal Image';
+                
+                const reasonsList = (data.reasons || []).map(r => `<li>${r}</li>`).join('');
+                validationMessage.innerHTML = `
+                    <p class="mb-2 fw-semibold">${data.clinical_message || "The provided image does not match retinal fundus criteria."}</p>
+                    <ul class="mb-2 ps-3 small text-danger">${reasonsList}</ul>
+                    <p class="mb-0 small text-muted"><strong>Clinical Instruction:</strong> Standard webcam selfies or external eye portraits cannot screen for Diabetic Retinopathy. Please connect a fundus camera lens adapter or upload a genuine fundus photograph.</p>
+                `;
+
+                if (qualityScoreBar) qualityScoreBar.style.width = `0%`;
+                if (qualityScoreText) qualityScoreText.textContent = `0%`;
+                if (validationMetrics) validationMetrics.innerHTML = '';
+                if (preprocessingSection) preprocessingSection.hidden = true;
+
+                submitAnalyzeBtn.disabled = true;
+            }
+
+        } catch (err) {
+            console.error("Validation API error:", err);
+            validationBox.className = "validation-result-box invalid";
+            validationStatusTitle.innerHTML = '<i class="bi bi-x-circle-fill text-danger me-2"></i>Validation System Error';
+            validationMessage.textContent = "Unable to connect to validation engine. Please ensure the server is running.";
+            submitAnalyzeBtn.disabled = true;
+        }
+    }
+
+    // =========================================================================
+    // 5. Form Submission Handler
+    // =========================================================================
+
+    if (fundusForm) {
+        fundusForm.addEventListener('submit', function (e) {
+            if (!hasValidImage && !imageBase64Input.value) {
+                e.preventDefault();
+                alert("Please capture or upload a valid retinal fundus photograph before analyzing.");
+                return;
+            }
+
+            submitAnalyzeBtn.disabled = true;
+            submitAnalyzeBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Processing Fundus & Running CNN Model...';
+        });
+    }
+
+    // Clean up camera on page unload
+    window.addEventListener('beforeunload', stopCameraStream);
+});

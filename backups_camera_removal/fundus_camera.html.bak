@@ -1,0 +1,218 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Fundus Camera Module | MedVision AI{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/fundus_camera.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header Banner -->
+    <div class="fundus-header-banner p-4 text-white mb-4">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+            <div>
+                <span class="badge bg-info text-dark px-3 py-1 mb-2 fw-semibold">
+                    <i class="bi bi-camera-fill me-1"></i> Medical Imaging Workstation
+                </span>
+                <h2 class="fw-bold mb-1 text-white">Fundus Camera Module</h2>
+                <p class="text-light opacity-75 small mb-0">
+                    Live optical camera capture, genuine retinal validation, and CLAHE preprocessing pipeline before CNN deep learning classification.
+                </p>
+            </div>
+            <div>
+                <span class="badge {% if model_ready %}bg-success{% else %}bg-warning text-dark{% endif %} px-3 py-2">
+                    <i class="bi bi-cpu-fill me-1"></i> CNN Model: {% if model_ready %}Online &amp; Calibrated{% else %}Weights Pending{% endif %}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Medical Optical Notice Card -->
+    <div class="medical-notice-card mb-4">
+        <div class="d-flex align-items-start gap-3">
+            <i class="bi bi-info-circle-fill text-primary fs-4 flex-shrink-0 mt-1"></i>
+            <div>
+                <h6 class="fw-bold text-navy mb-1">Clinical Ophthalmic Imaging Requirement</h6>
+                <p class="small text-muted mb-0">
+                    Standard webcams and phone cameras capture external ocular surfaces (eyelids/iris) and <strong>cannot penetrate the pupil to view the posterior retinal fundus</strong> without specialized optical hardware (e.g., a tabletop fundus camera or a smartphone indirect ophthalmoscopy adapter like Volk iNview or D-Eye). Ordinary selfies and external eye photographs will be automatically rejected by our bio-optical validation engine. If an optical lens adapter is unavailable, please use the <strong>Upload Fundus Image</strong> tab to provide an authentic fundus scan.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Workstation Layout -->
+    <div class="row g-4">
+        <!-- Left Column: Acquisition Interface -->
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+                <!-- Dual-Mode Workflow Navigation Tabs -->
+                <ul class="nav nav-tabs fundus-nav-tabs mb-4" id="fundusTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="camera-tab" data-bs-toggle="tab" data-bs-target="#cameraTabPane" type="button" role="tab" aria-controls="cameraTabPane" aria-selected="true">
+                            <i class="bi bi-camera-video me-1"></i> Live Camera Scan
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="upload-tab" data-bs-toggle="tab" data-bs-target="#uploadTabPane" type="button" role="tab" aria-controls="uploadTabPane" aria-selected="false">
+                            <i class="bi bi-cloud-arrow-up me-1"></i> Upload Fundus Image
+                        </button>
+                    </li>
+                </ul>
+
+                <div class="tab-content" id="fundusTabContent">
+                    <!-- Tab 1: Camera Capture Workflow -->
+                    <div class="tab-pane fade show active" id="cameraTabPane" role="tabpanel" aria-labelledby="camera-tab">
+                        <!-- Viewfinder Card -->
+                        <div class="viewfinder-card mb-3" id="viewfinderCard">
+                            <video id="cameraVideo" class="viewfinder-video" autoplay playsinline muted hidden></video>
+
+                            <!-- Optical Aperture Reticle Overlay -->
+                            <div class="optical-reticle-overlay">
+                                <div class="aperture-ring">
+                                    <div class="aperture-crosshair-h"></div>
+                                    <div class="aperture-crosshair-v"></div>
+                                    <span class="aperture-tag">FOV 45&deg; OPTIC</span>
+                                </div>
+                            </div>
+
+                            <!-- Laser Scan Sweep Indicator -->
+                            <div class="scanning-laser-beam"></div>
+
+                            <!-- Placeholder when camera stopped -->
+                            <div id="cameraPlaceholder" class="d-flex flex-column align-items-center justify-content-center text-center p-4 text-secondary" style="height: 380px;">
+                                <i class="bi bi-camera-video-off fs-1 text-muted mb-2"></i>
+                                <h6 class="text-white fw-semibold">Camera is Inactive</h6>
+                                <p class="small text-secondary mb-3" style="max-width: 320px;">
+                                    Click <strong>Start Camera</strong> to initiate live optical preview and align with retinal aperture.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Camera Control Toolbar -->
+                        <div class="camera-toolbar d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+                            <div class="d-flex flex-wrap gap-2">
+                                <button type="button" id="startCameraBtn" class="btn btn-primary btn-sm px-3 rounded-pill">
+                                    <i class="bi bi-play-circle me-1"></i> Start Camera
+                                </button>
+                                <button type="button" id="captureBtn" class="btn btn-success btn-sm px-3 rounded-pill" disabled>
+                                    <i class="bi bi-camera-fill me-1"></i> Capture Image
+                                </button>
+                                <button type="button" id="switchCameraBtn" class="btn btn-outline-secondary btn-sm px-2 rounded-pill" disabled title="Flip Camera">
+                                    <i class="bi bi-arrow-repeat"></i> Flip
+                                </button>
+                                <button type="button" id="stopCameraBtn" class="btn btn-outline-danger btn-sm px-3 rounded-pill" disabled>
+                                    <i class="bi bi-stop-circle me-1"></i> Stop Camera
+                                </button>
+                            </div>
+                            <span id="cameraStatusText" class="small text-muted">Ready to initialize</span>
+                        </div>
+                    </div>
+
+                    <!-- Tab 2: Retinal File Upload Workflow -->
+                    <div class="tab-pane fade" id="uploadTabPane" role="tabpanel" aria-labelledby="upload-tab">
+                        <div class="p-4 border-2 border-dashed rounded-4 text-center cursor-pointer mb-3" id="fundusFileDropzone" style="border-color: #cbd5e1; background: #f8fafc;">
+                            <i class="bi bi-cloud-arrow-up text-primary fs-1 mb-2 d-block"></i>
+                            <h6 class="fw-bold text-navy mb-1">Drag and drop retinal fundus photograph here</h6>
+                            <p class="small text-muted mb-3">or click to browse from device (JPG, JPEG, PNG)</p>
+                            <button type="button" class="btn btn-outline-primary btn-sm px-3 rounded-pill">
+                                <i class="bi bi-folder2-open me-1"></i> Select File
+                            </button>
+                            <input type="file" id="fundusFileInput" accept=".jpg,.jpeg,.png,image/jpeg,image/png" hidden>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center small text-muted px-1">
+                            <span>Selected: <strong id="uploadedFileName" class="text-dark">No file chosen</strong></span>
+                            <span>Max size: 15 MB</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hidden Canvas for Snapshot Processing -->
+                <canvas id="captureCanvas" hidden></canvas>
+            </div>
+        </div>
+
+        <!-- Right Column: Validation & Preprocessing Workstation -->
+        <div class="col-lg-5">
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100 d-flex flex-column">
+                <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
+                    <h5 class="fw-bold text-navy mb-0">
+                        <i class="bi bi-shield-check text-primary me-2"></i>Fundus Validation
+                    </h5>
+                    <span class="badge bg-light text-secondary border">Step 2 of 3</span>
+                </div>
+
+                <!-- Validation Status Box -->
+                <div id="validationBox" class="validation-result-box mb-3" hidden>
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <h6 id="validationStatusTitle" class="fw-bold mb-0 d-flex align-items-center"></h6>
+                        <span id="qualityScoreText" class="fw-bold fs-6"></span>
+                    </div>
+
+                    <div class="quality-meter-track mb-3">
+                        <div id="qualityScoreBar" class="quality-meter-bar" style="width: 0%;"></div>
+                    </div>
+
+                    <div id="validationMessage" class="small mb-2"></div>
+                    <div id="validationMetrics" class="d-flex flex-wrap gap-1 mt-2"></div>
+                </div>
+
+                <!-- Default Guidance when no image captured yet -->
+                <div id="emptyValidationNotice" class="p-3 bg-light rounded-3 text-center text-muted small mb-3">
+                    <i class="bi bi-camera me-1"></i> Capture an image or select a file to begin optical validation and CLAHE contrast preprocessing.
+                </div>
+
+                <!-- Preprocessing Channels Preview -->
+                <div id="preprocessingSection" class="mb-4" hidden>
+                    <h6 class="fw-bold text-navy mb-2 small text-uppercase">
+                        <i class="bi bi-layers-fill text-teal me-1"></i> Preprocessing Channels
+                    </h6>
+                    <div class="row g-2">
+                        <div class="col-4">
+                            <div class="preview-card text-center">
+                                <img id="previewOriginal" src="" alt="Raw" class="preview-card-img" style="height: 110px;">
+                                <div class="preview-card-label" style="font-size: 0.7rem;">1. Raw Scan</div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="preview-card text-center">
+                                <img id="previewGreen" src="" alt="Green" class="preview-card-img" style="height: 110px;">
+                                <div class="preview-card-label" style="font-size: 0.7rem;">2. Green Channel</div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="preview-card text-center">
+                                <img id="previewClahe" src="" alt="CLAHE" class="preview-card-img" style="height: 110px;">
+                                <div class="preview-card-label" style="font-size: 0.7rem;">3. CLAHE Enhanced</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analysis Submission Form -->
+                <form method="POST" action="{% url 'fundus_camera' %}" id="fundusProcessingForm" class="mt-auto">
+                    {% csrf_token %}
+                    <input type="hidden" name="image_base64" id="imageBase64Input">
+                    <input type="hidden" name="capture_source" id="captureSourceInput" value="CAMERA">
+
+                    <div class="mb-3">
+                        <label for="clinicalNotesInput" class="form-label small fw-semibold text-muted">
+                            Clinical Observation / Patient Identifier <span class="fw-normal">(Optional)</span>
+                        </label>
+                        <input type="text" name="notes" id="clinicalNotesInput" class="form-control form-control-sm" placeholder="e.g., Patient #2041, Left Eye (OS), Dilated Fundus">
+                    </div>
+
+                    <button type="submit" id="submitAnalyzeBtn" class="btn btn-medical-primary w-100 py-2 fw-semibold" disabled>
+                        <i class="bi bi-cpu-fill me-1"></i> Analyze Image with CNN Model
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/fundus_camera.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,205 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}About the System & CNN Deep Learning{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="bg-dark text-white py-5" style="background: linear-gradient(135deg, #071527 0%, #0a2540 100%);">
+    <div class="container py-3">
+        <span class="badge bg-info text-dark mb-2 px-3 py-1 fw-bold">Academic Project Documentation</span>
+        <h1 class="fw-bold display-5 text-white">About Diabetic Retinopathy Detection</h1>
+        <p class="lead text-light opacity-75 mb-0" style="max-width: 700px;">
+            A clinical decision-support platform employing deep convolutional neural networks for early, automated detection and grading of retinal microvascular lesions.
+        </p>
+    </div>
+</div>
+
+<div class="container section-padding">
+    <div class="row g-5">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- 1. Introduction -->
+            <section class="mb-5">
+                <h3 class="fw-bold mb-3"><i class="bi bi-file-earmark-medical text-primary me-2"></i>1. Project Introduction</h3>
+                <p>
+                    Diabetic Retinopathy (DR) is a chronic ocular complication of diabetes mellitus and remains the leading cause of preventable blindness among working-age adults worldwide. Sustained hyperglycemia damages fine retinal capillaries, causing microaneurysms, fluid leakage, ischemia, hemorrhages, and ultimately abnormal neo-vascularization.
+                </p>
+                <p>
+                    The <strong>Diabetic Retinopathy Detection System</strong> is an academic engineering project created to explore how modern Computer Vision and Deep Learning algorithms can assist ophthalmologists and healthcare screening programs in rapidly triaging retinal fundus photographs.
+                </p>
+            </section>
+
+            <!-- 2. Problem Statement -->
+            <section class="mb-5">
+                <h3 class="fw-bold mb-3"><i class="bi bi-exclamation-triangle text-danger me-2"></i>2. Problem Statement</h3>
+                <div class="card-medical p-4 border-start border-4 border-danger">
+                    <p class="mb-2">
+                        Conventional DR screening requires manual inspection of dilated eye fundus photographs by trained ophthalmologists or certified graders. However:
+                    </p>
+                    <ul class="mb-0 text-muted">
+                        <li><strong>Shortage of Retinal Specialists:</strong> Many rural, regional, and developing areas lack sufficient eye-care professionals to conduct timely annual screenings for expanding diabetic populations.</li>
+                        <li><strong>Time-Consuming Examination:</strong> Manual grading of subtle microaneurysms across hundreds of images daily leads to physician fatigue and delay in emergency interventions.</li>
+                        <li><strong>Subjectivity:</strong> Inter-observer variation exists in distinguishing early stages (such as Mild NPDR versus Moderate NPDR).</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- 3. Existing System vs Proposed System -->
+            <section class="mb-5">
+                <h3 class="fw-bold mb-3"><i class="bi bi-arrow-left-right text-success me-2"></i>3. Existing System vs. Proposed AI System</h3>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Feature</th>
+                                <th>Conventional Manual Screening</th>
+                                <th>Proposed AI Detection System</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Screening Time</strong></td>
+                                <td>Days to weeks for specialist review</td>
+                                <td>Instant real-time inference (&lt; 2 seconds)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Availability</strong></td>
+                                <td>Restricted to clinic and hospital hours</td>
+                                <td>24/7 web-accessible platform</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Micro-Lesion Detection</strong></td>
+                                <td>Subject to human visual fatigue</td>
+                                <td>High-sensitivity automated feature maps</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Triage Support</strong></td>
+                                <td>Requires manual scheduling queues</td>
+                                <td>Automated urgency triage (Grade 0 to Grade 4)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 4. CNN Deep Learning Explanation -->
+            <section class="mb-5">
+                <h3 class="fw-bold mb-3"><i class="bi bi-cpu text-info me-2"></i>4. How the CNN Deep Learning Model Works</h3>
+                <p>
+                    A Convolutional Neural Network (CNN) is a deep neural network architecture designed specifically for processing structured grid data such as images. Rather than treating an image as flat numbers, the CNN analyzes spatial relationships between adjacent pixels.
+                </p>
+                <div class="row g-3 my-2">
+                    <div class="col-md-6">
+                        <div class="card-medical p-3 h-100">
+                            <h6 class="fw-bold text-primary"><i class="bi bi-layers me-1"></i>Convolutional Layers</h6>
+                            <p class="small text-muted mb-0">
+                                Apply mathematical filters across the retina to detect edges, circular contours of microaneurysms, and dark capillary hemorrhages.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card-medical p-3 h-100">
+                            <h6 class="fw-bold text-primary"><i class="bi bi-aspect-ratio me-1"></i>Pooling &amp; Normalization</h6>
+                            <p class="small text-muted mb-0">
+                                Downsample feature maps while retaining critical lesion signals, stabilized by Batch Normalization layers.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card-medical p-3 h-100">
+                            <h6 class="fw-bold text-primary"><i class="bi bi-funnel me-1"></i>Dense Classification Head</h6>
+                            <p class="small text-muted mb-0">
+                                Aggregates high-level visual features into representation vectors through a fully-connected dropout layer.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card-medical p-3 h-100">
+                            <h6 class="fw-bold text-primary"><i class="bi bi-pie-chart me-1"></i>Softmax Probability Output</h6>
+                            <p class="small text-muted mb-0">
+                                Converts raw logits into calibrated probability distributions spanning the 5 clinical stages.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. System Workflow -->
+            <section class="mb-5">
+                <h3 class="fw-bold mb-3"><i class="bi bi-diagram-3 text-primary me-2"></i>5. System Workflow Architecture</h3>
+                <ol class="list-group list-group-numbered">
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">
+                            <div class="fw-bold">Client-Side Image Validation</div>
+                            User selects a retinal fundus photograph. Checks file type, dimensions, and size (&le; 15 MB).
+                        </div>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">
+                            <div class="fw-bold">Preprocessing &amp; Normalization</div>
+                            Image resized to 224&times;224 RGB, pixel normalized with ImageNet mean and standard deviation.
+                        </div>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">
+                            <div class="fw-bold">Forward Pass &amp; Feature Extraction</div>
+                            Tensor passed through RetinalCNN feature extractor blocks to calculate stage logits.
+                        </div>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">
+                            <div class="fw-bold">Clinical Report Generation</div>
+                            Database record created, visual Chart.js distribution rendered, and clinical recommendations delivered.
+                        </div>
+                    </li>
+                </ol>
+            </section>
+
+            <!-- 6. Project Limitations -->
+            <section class="mb-5">
+                <h3 class="fw-bold mb-3"><i class="bi bi-shield-slash text-warning me-2"></i>6. Academic Project Limitations</h3>
+                <div class="card-medical p-4 bg-light">
+                    <ul class="mb-0 text-muted">
+                        <li><strong>Image Quality Sensitivity:</strong> Poor illumination, cataracts, out-of-focus capture, or severe corneal opacity can degrade inference reliability.</li>
+                        <li><strong>Single Modality Input:</strong> The model evaluates 2D color fundus photos only and does not incorporate Optical Coherence Tomography (OCT) or patient glycemic HbA1c history.</li>
+                        <li><strong>Decision-Support Scope:</strong> Predictions reflect statistical patterns in training datasets rather than clinical diagnoses.</li>
+                    </ul>
+                </div>
+            </section>
+        </div>
+
+        <!-- Sidebar Summary -->
+        <div class="col-lg-4">
+            <div class="card-medical p-4 mb-4 sticky-top" style="top: 90px;">
+                <h5 class="fw-bold mb-3 text-primary"><i class="bi bi-mortarboard me-2"></i>Academic Profile</h5>
+                <ul class="list-unstyled small mb-4">
+                    <li class="mb-2"><strong>Project Type:</strong> Diploma Final Year Project</li>
+                    <li class="mb-2"><strong>Domain:</strong> Healthcare AI &amp; Computer Vision</li>
+                    <li class="mb-2"><strong>Backend:</strong> Django 6 &amp; SQLite3</li>
+                    <li class="mb-2"><strong>Deep Learning:</strong> PyTorch &amp; Keras</li>
+                    <li class="mb-2"><strong>Frontend:</strong> Bootstrap 5 &amp; Chart.js</li>
+                </ul>
+
+                <hr>
+
+                <h6 class="fw-bold mb-2">5 Diagnostic Classes</h6>
+                <div class="d-flex flex-column gap-1 small mb-4">
+                    <span class="badge bg-success text-start py-2 px-3">Grade 0: No DR</span>
+                    <span class="badge bg-info text-dark text-start py-2 px-3">Grade 1: Mild NPDR</span>
+                    <span class="badge bg-warning text-dark text-start py-2 px-3">Grade 2: Moderate NPDR</span>
+                    <span class="badge bg-orange text-white text-start py-2 px-3" style="background:#ea580c">Grade 3: Severe NPDR</span>
+                    <span class="badge bg-danger text-start py-2 px-3">Grade 4: Proliferative DR</span>
+                </div>
+
+                <div class="p-3 rounded bg-warning bg-opacity-10 border border-warning">
+                    <small class="text-dark fw-bold d-block mb-1"><i class="bi bi-exclamation-triangle-fill text-warning me-1"></i> Medical Notice</small>
+                    <small class="text-muted" style="font-size: 0.78rem;">
+                        This software is not certified as a medical device (SaMD) by FDA or CE. For academic research and demonstration purposes only.
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

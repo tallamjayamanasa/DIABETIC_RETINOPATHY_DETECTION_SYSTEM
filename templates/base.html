@@ -1,0 +1,222 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AI-Powered Diabetic Retinopathy Detection System using Deep Learning and Retinal Fundus Image Analysis.">
+    <title>{% block title %}Diabetic Retinopathy Detection System{% endblock %} | MedVision AI</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/responsive.css' %}">
+    <link rel="stylesheet" href="{% static 'css/animation.css' %}">
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+    <!-- Professional Healthcare Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark medical-navbar sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'home' %}">
+                <img src="{% static 'images/logo.png' %}" alt="MedVision AI Logo" class="brand-icon">
+                <span>Retina<span class="brand-highlight">AI</span> Care</span>
+            </a>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-3">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home' %}">
+                            <i class="bi bi-house-door me-1"></i> Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}" href="{% url 'about' %}">
+                            <i class="bi bi-info-circle me-1"></i> About System
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'upload' %}active{% endif %}" href="{% url 'upload' %}">
+                            <i class="bi bi-cloud-arrow-up me-1"></i> Analyze Retinal Scan
+                        </a>
+                    </li>
+                    {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'dashboard' %}">
+                            <i class="bi bi-speedometer2 me-1"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'history' %}active{% endif %}" href="{% url 'history' %}">
+                            <i class="bi bi-clock-history me-1"></i> History
+                        </a>
+                    </li>
+                    {% endif %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'contact' %}active{% endif %}" href="{% url 'contact' %}">
+                            <i class="bi bi-envelope me-1"></i> Contact
+                        </a>
+                    </li>
+                </ul>
+
+                <div class="d-flex align-items-center gap-2">
+                    {% if user.is_authenticated %}
+                    <div class="dropdown">
+                        <button class="btn btn-medical-outline dropdown-toggle d-flex align-items-center gap-2" type="button" id="userMenuBtn" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-person-circle fs-5"></i>
+                            <span>{{ user.first_name|default:user.username }}</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2" aria-labelledby="userMenuBtn">
+                            <li class="px-3 py-2 border-bottom">
+                                <p class="mb-0 fw-bold text-dark">{{ user.get_full_name|default:user.username }}</p>
+                                <small class="text-muted">{{ user.email }}</small>
+                            </li>
+                            <li><a class="dropdown-item py-2" href="{% url 'dashboard' %}"><i class="bi bi-speedometer2 me-2 text-primary"></i>Dashboard</a></li>
+                            <li><a class="dropdown-item py-2" href="{% url 'profile' %}"><i class="bi bi-person-gear me-2 text-primary"></i>My Profile</a></li>
+                            <li><a class="dropdown-item py-2" href="{% url 'history' %}"><i class="bi bi-journal-medical me-2 text-primary"></i>Prediction Records</a></li>
+                            {% if user.is_staff %}
+                            <li><hr class="dropdown-divider"></li>
+                            <li><h6 class="dropdown-header text-uppercase fs-7 text-muted">Staff Administration</h6></li>
+                            <li><a class="dropdown-item py-2 text-primary" href="{% url 'admin_dashboard' %}"><i class="bi bi-shield-lock me-2"></i>Staff Admin Panel</a></li>
+                            <li><a class="dropdown-item py-2" href="/admin/" target="_blank"><i class="bi bi-gear-wide-connected me-2"></i>Django Admin</a></li>
+                            {% endif %}
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item py-2 text-danger" href="{% url 'logout' %}">
+                                    <i class="bi bi-box-arrow-right me-2"></i>Sign Out
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    {% else %}
+                    <a href="{% url 'login' %}" class="btn btn-medical-outline">
+                        <i class="bi bi-box-arrow-in-right me-1"></i> Sign In
+                    </a>
+                    <a href="{% url 'register' %}" class="btn btn-medical-primary">
+                        <i class="bi bi-person-plus me-1"></i> Register
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Global Alert Messages Container -->
+    {% if messages %}
+    <div class="container mt-3">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show shadow-sm border-0 d-flex align-items-center gap-2" role="alert">
+            <i class="bi {% if message.tags == 'success' %}bi-check-circle-fill text-success{% elif message.tags == 'danger' %}bi-exclamation-triangle-fill text-danger{% else %}bi-info-circle-fill text-info{% endif %} fs-5"></i>
+            <div>{{ message }}</div>
+            <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Main Content Area -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Professional Healthcare Footer -->
+    <footer class="medical-footer">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-lg-4 col-md-6">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <img src="{% static 'images/logo.png' %}" alt="Logo" style="width: 32px; height: 32px;">
+                        <span class="fs-5 fw-bold text-white">Retina<span class="text-info">AI</span> Care</span>
+                    </div>
+                    <p class="text-secondary small mb-3">
+                        An intelligent medical decision-support prototype powered by Convolutional Neural Networks (CNN) for early classification of Diabetic Retinopathy from retinal fundus photographs.
+                    </p>
+                    <div class="d-flex gap-3 text-secondary">
+                        <span><i class="bi bi-shield-check text-info me-1"></i> Academic Research</span>
+                        <span><i class="bi bi-cpu text-info me-1"></i> Deep Learning</span>
+                    </div>
+                </div>
+
+                <div class="col-lg-2 col-md-6">
+                    <h5>Navigation</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="{% url 'home' %}">Home</a></li>
+                        <li class="mb-2"><a href="{% url 'about' %}">About CNN Model</a></li>
+                        <li class="mb-2"><a href="{% url 'upload' %}">Analyze Retinal Image</a></li>
+                        <li class="mb-2"><a href="{% url 'contact' %}">Contact & Support</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <h5>Clinical DR Stages</h5>
+                    <ul class="list-unstyled small">
+                        <li class="mb-1 text-secondary"><span class="badge bg-success me-1">0</span> No Diabetic Retinopathy</li>
+                        <li class="mb-1 text-secondary"><span class="badge bg-info text-dark me-1">1</span> Mild NPDR</li>
+                        <li class="mb-1 text-secondary"><span class="badge bg-warning text-dark me-1">2</span> Moderate NPDR</li>
+                        <li class="mb-1 text-secondary"><span class="badge bg-orange text-white me-1" style="background:#ea580c">3</span> Severe NPDR</li>
+                        <li class="mb-1 text-secondary"><span class="badge bg-danger me-1">4</span> Proliferative DR (PDR)</li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <h5>Academic Information</h5>
+                    <p class="small text-secondary mb-2">
+                        <strong>Project:</strong> Diploma Final Year Academic Project
+                    </p>
+                    <p class="small text-secondary mb-2">
+                        <strong>Tech Stack:</strong> Python, Django, TensorFlow/Keras, PyTorch, SQLite3, Bootstrap 5.
+                    </p>
+                    <div class="p-2 rounded bg-dark border border-secondary border-opacity-25 mt-2">
+                        <small class="text-info d-block fw-semibold mb-1"><i class="bi bi-hospital me-1"></i> Healthcare Decision Support</small>
+                        <small class="text-secondary" style="font-size: 0.75rem;">Assisting clinicians and screening technicians in triage and early detection.</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Prominent Medical Disclaimer Box -->
+            <div class="medical-disclaimer-box mt-4">
+                <div class="d-flex gap-2 align-items-start">
+                    <i class="bi bi-exclamation-octagon-fill fs-5 flex-shrink-0 mt-1"></i>
+                    <div>
+                        <strong>Important Medical Disclaimer:</strong>
+                        This system is an academic research demonstration and educational decision-support prototype. It does NOT provide a definitive medical diagnosis, nor is it a substitute for clinical examination by a qualified ophthalmologist or retinal specialist. Always seek professional healthcare advice for ocular symptoms and diabetic complications.
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-bottom d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
+                <div>
+                    &copy; 2026 <strong>Diabetic Retinopathy Detection System</strong>. Diploma Final Year Project. All rights reserved.
+                </div>
+                <div class="text-secondary small">
+                    Engineered with Django &amp; Deep Convolutional Neural Networks
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+    <!-- Custom Scripts -->
+    <script src="{% static 'js/script.js' %}"></script>
+    <script src="{% static 'js/validation.js' %}"></script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

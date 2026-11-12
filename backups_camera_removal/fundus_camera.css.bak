@@ -1,0 +1,248 @@
+/* =====================================================================
+   Fundus Camera Module - Professional Medical Blue & White Theme
+   ===================================================================== */
+
+.fundus-camera-wrapper {
+  background: var(--bg-light, #f8fafc);
+}
+
+/* Header Banner */
+.fundus-header-banner {
+  background: linear-gradient(135deg, #0a1f38 0%, #163255 100%);
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(10, 31, 56, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Workflow Nav Tabs */
+.fundus-nav-tabs {
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.fundus-nav-tabs .nav-link {
+  font-weight: 600;
+  color: #64748b;
+  border: none;
+  padding: 0.85rem 1.5rem;
+  border-radius: 10px 10px 0 0;
+  transition: all 0.25s ease;
+  background: transparent;
+}
+
+.fundus-nav-tabs .nav-link.active {
+  color: #0284c7;
+  background: #ffffff;
+  border-bottom: 3px solid #0284c7;
+  box-shadow: 0 -2px 8px rgba(2, 132, 199, 0.08);
+}
+
+.fundus-nav-tabs .nav-link:hover:not(.active) {
+  color: #0a1f38;
+  background: #f1f5f9;
+}
+
+/* Viewfinder Container */
+.viewfinder-card {
+  background: #000000;
+  border-radius: 16px;
+  overflow: hidden;
+  position: relative;
+  min-height: 380px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+  border: 2px solid #1e293b;
+}
+
+.viewfinder-video {
+  width: 100%;
+  height: 100%;
+  max-height: 480px;
+  object-fit: cover;
+  display: block;
+}
+
+/* Optical Aperture Reticle Overlay */
+.optical-reticle-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Circular Fundus Aperture Ring */
+.aperture-ring {
+  width: min(320px, 75%);
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  border: 2px dashed rgba(56, 189, 248, 0.7);
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.45);
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.aperture-ring::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(13, 148, 136, 0.85);
+}
+
+/* Crosshairs */
+.aperture-crosshair-h {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.4) 20%, rgba(56, 189, 248, 0.4) 80%, transparent);
+}
+
+.aperture-crosshair-v {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  height: 100%;
+  width: 1px;
+  background: linear-gradient(180deg, transparent, rgba(56, 189, 248, 0.4) 20%, rgba(56, 189, 248, 0.4) 80%, transparent);
+}
+
+.aperture-tag {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: rgba(10, 31, 56, 0.85);
+  color: #38bdf8;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-family: monospace;
+  letter-spacing: 0.5px;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  backdrop-filter: blur(4px);
+}
+
+/* Laser Sweep Animation */
+.scanning-laser-beam {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #38bdf8 50%, transparent);
+  box-shadow: 0 0 14px #38bdf8;
+  animation: laserSweep 2.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  display: none;
+}
+
+.scanning-active .scanning-laser-beam {
+  display: block;
+}
+
+@keyframes laserSweep {
+  0% { top: 0%; opacity: 0.2; }
+  50% { top: 98%; opacity: 1; }
+  100% { top: 0%; opacity: 0.2; }
+}
+
+/* Control Toolbar */
+.camera-toolbar {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+}
+
+/* Preview Cards */
+.preview-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.preview-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(10, 31, 56, 0.08);
+}
+
+.preview-card-img {
+  width: 100%;
+  height: 180px;
+  object-fit: contain;
+  background: #000000;
+  display: block;
+}
+
+.preview-card-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #0f172a;
+  padding: 0.6rem 0.8rem;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+}
+
+/* Validation Diagnostics Box */
+.validation-result-box {
+  border-radius: 12px;
+  padding: 1.25rem;
+  transition: all 0.3s ease;
+}
+
+.validation-result-box.valid {
+  background: #ecfdf5;
+  border: 1.5px solid #10b981;
+  color: #065f46;
+}
+
+.validation-result-box.invalid {
+  background: #fef2f2;
+  border: 1.5px solid #ef4444;
+  color: #991b1b;
+}
+
+.validation-metric-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.65rem;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+/* Quality Score Progress */
+.quality-meter-track {
+  height: 8px;
+  background: #e2e8f0;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.quality-meter-bar {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #14b8a6, #0284c7);
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Medical Disclaimer Card */
+.medical-notice-card {
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-left: 4px solid #0284c7;
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+}
